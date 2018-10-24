@@ -1,23 +1,23 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/PagerDuty/go-pagerduty"
-	"time"
-	"flag"
 	"os"
+	"time"
 )
 
 type onCall struct {
 	engineer string
-	minutes	 int64
-	shift	 string
+	minutes  int64
+	shift    string
 	override bool
 }
 
 type engineerOverview struct {
 	engineer string
-	shifts map[string][]int64
+	shifts   map[string][]int64
 	override map[string][]int64
 }
 
@@ -42,7 +42,7 @@ func getScheduleId(c *pagerduty.Client, scheduleName string) (string, error) {
 	}
 }
 
-func getOncallEngineers(c *pagerduty.Client) ([]string, error){
+func getOncallEngineers(c *pagerduty.Client) ([]string, error) {
 	var opts pagerduty.ListUsersOptions
 
 	var ocEngineers []string
@@ -65,7 +65,7 @@ func initOnCallSummary(c *pagerduty.Client) map[string]engineerOverview {
 		return ocs
 	}
 
-	for _, oce := range engineers  {
+	for _, oce := range engineers {
 		var ovw engineerOverview
 		ovw.engineer = oce
 		ovw.shifts = make(map[string][]int64)
@@ -81,7 +81,7 @@ func getSchedule(c *pagerduty.Client, id string, since string, until string) (*p
 	opts.Since = since
 	opts.Until = until
 
-	if sched, err := c.GetSchedule(id ,opts); err != nil {
+	if sched, err := c.GetSchedule(id, opts); err != nil {
 		fmt.Print(err)
 		return nil, error(err)
 	} else {
@@ -129,9 +129,9 @@ func extractLayerShifts(c *pagerduty.Client, sched *pagerduty.Schedule, layerNam
 func main() {
 
 	var authtoken = flag.String("token", "", "Auth Token for Pagerduty")
-	var scheduleName = flag.String("name", "ACDC Oncall Schedule", "Name of the Oncall Schedule to extract")
-	var startTime = flag.String("since", "2018-06-01T00:00:01", "Extract data since this timestamp in UTC")
-	var endTime = flag.String("until", "2018-07-01T00:00:01", "Extract data until this timestamp in UTC")
+	var scheduleName = flag.String("schedulename", "MySchedule", "Name of the Oncall Schedule to extract")
+	var startTime = flag.String("since", "2018-10-01T00:00:01", "Extract data since this timestamp in UTC")
+	var endTime = flag.String("until", "2018-10-15T00:00:01", "Extract data until this timestamp in UTC")
 
 	flag.Parse()
 
@@ -159,7 +159,7 @@ func main() {
 			// Extract the Final Schedule for that specific layer
 			ocl := extractLayerShifts(client, nsched, sl.Name)
 
-			onCallList = append(onCallList,ocl...)
+			onCallList = append(onCallList, ocl...)
 		}
 	}
 
@@ -177,7 +177,7 @@ func main() {
 	}
 
 	for user, eoverview := range onCallSummary {
-		fmt.Printf("Engineer: %s\n", user )
+		fmt.Printf("Engineer: %s\n", user)
 
 		for shiftname, minuteArray := range eoverview.shifts {
 			numOverrides := len(eoverview.override[shiftname])
