@@ -5,6 +5,7 @@ import (
 	"github.com/PagerDuty/go-pagerduty"
 	"time"
 	"flag"
+	"os"
 )
 
 type onCall struct {
@@ -133,6 +134,11 @@ func main() {
 	var endTime = flag.String("until", "2018-07-01T00:00:01", "Extract data until this timestamp in UTC")
 
 	flag.Parse()
+
+	if *authtoken == "" {
+		flag.Usage()
+		os.Exit(-1)
+	}
 
 	client := pagerduty.NewClient(*authtoken)
 
